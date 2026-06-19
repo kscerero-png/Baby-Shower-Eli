@@ -477,57 +477,51 @@ export default function App() {
                   return (
                     <div 
                       key={producto.id}
-                      className={`relative bg-[#FFFDF9] border-2 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${
+                      className={`relative bg-[#FFFDF9] border-2 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col ${
                         isCompletado 
                           ? 'border-emerald-200/80 bg-emerald-50/10' 
                           : 'border-pink-100 hover:border-pink-200'
                       }`}
                     >
                       {!isCompletado && producto.prioridad === 'Alta' && (
-                        <span className="absolute top-3 right-3 bg-rose-100 text-rose-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider border border-rose-200">
+                        <span className="absolute top-3 right-3 z-10 bg-rose-100 text-rose-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider border border-rose-200 shadow-sm">
                           Prioritario 💝
                         </span>
                       )}
 
-                      <div className="p-6">
-                        <div className="flex items-start gap-4 mb-4">
-                          {producto.imagenUrl ? (
-                            <img
-                              src={producto.imagenUrl}
-                              alt={producto.titulo}
-                              className="w-16 h-16 rounded-2xl object-cover border border-pink-100 shrink-0 bg-white"
-                            />
-                          ) : (
+                      {/* Imagen grande estilo Giftful */}
+                      {producto.imagenUrl ? (
+                        <div className="relative w-full h-52 bg-amber-50 overflow-hidden">
+                          <img
+                            src={producto.imagenUrl}
+                            alt={producto.titulo}
+                            className="w-full h-full object-contain p-4 bg-white"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#FFFDF9] to-transparent" />
+                        </div>
+                      ) : (
+                        <div className="w-full h-40 flex items-center justify-center bg-gradient-to-b from-amber-50 to-[#FFFDF9]">
+                          <div className="scale-[2.5] opacity-60">
                             <IconoCategoria tipo={producto.imagenTipo} />
-                          )}
-                          <div>
-                            <span className="text-[11px] font-bold text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                              {producto.categoria}
-                            </span>
-                            <h3 className="font-serif text-lg font-bold text-amber-950 mt-1 leading-snug">
-                              {producto.titulo}
-                            </h3>
                           </div>
                         </div>
+                      )}
 
-                        <p className="text-xs md:text-sm text-amber-950/75 leading-relaxed line-clamp-3 mb-4">
+                      <div className="p-5 pt-4">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <span className="text-[11px] font-bold text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">
+                            {producto.categoria}
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-amber-950 leading-snug mb-2">
+                          {producto.titulo}
+                        </h3>
+                        <p className="text-xs md:text-sm text-amber-950/75 leading-relaxed line-clamp-2 mb-4">
                           {producto.descripcion}
                         </p>
 
-                        <div className="space-y-2 bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100/50">
-                          <div className="flex justify-between text-xs font-semibold">
-                            <span className="text-amber-900/70">Objetivo:</span>
-                            <span className="text-amber-950">{producto.cantidadNecesitada} unidades</span>
-                          </div>
-                          
-                          <div className="flex justify-between text-xs font-semibold">
-                            <span className="text-amber-900/70">Ya Reservados:</span>
-                            <span className={`${producto.cantidadReservada > 0 ? 'text-pink-600 font-bold' : 'text-amber-950'}`}>
-                              {producto.cantidadReservada} unidades
-                            </span>
-                          </div>
-
-                          <div className="w-full h-2 bg-amber-100 rounded-full overflow-hidden">
+                        <div className="space-y-2 bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100/50 mb-4">
+                          <div className="w-full h-2.5 bg-amber-100 rounded-full overflow-hidden">
                             <div 
                               className={`h-full rounded-full transition-all duration-500 ${
                                 isCompletado ? 'bg-emerald-400' : 'bg-pink-400'
@@ -536,11 +530,13 @@ export default function App() {
                             />
                           </div>
 
-                          <div className="flex justify-between items-center text-xs pt-1">
-                            <span className="text-amber-900/60">Restantes:</span>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-amber-900/60">
+                              <strong className="text-amber-950">{producto.cantidadReservada}</strong> de <strong className="text-amber-950">{producto.cantidadNecesitada}</strong> reservados
+                            </span>
                             {isCompletado ? (
                               <span className="text-emerald-600 font-extrabold flex items-center gap-1 bg-emerald-100/50 px-2 py-0.5 rounded-md">
-                                <Check className="w-3.5 h-3.5" /> ¡Reservado completo!
+                                <Check className="w-3.5 h-3.5" /> Completo
                               </span>
                             ) : (
                               <span className="text-pink-700 font-bold bg-pink-100/50 px-2 py-0.5 rounded-md">
@@ -549,18 +545,16 @@ export default function App() {
                             )}
                           </div>
                         </div>
-                      </div>
 
-                      <div className="p-6 pt-0 border-t border-dashed border-amber-100/80 mt-auto bg-amber-50/10">
-                        <div className="flex gap-2.5 mt-4">
+                        <div className="flex gap-2.5">
                           {producto.enlace && (
                             <a 
                               href={producto.enlace}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl border border-pink-200 text-pink-600 bg-white hover:bg-pink-50 transition-colors text-xs font-semibold shadow-sm w-1/3 text-center"
+                              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-2xl border border-pink-200 text-pink-600 bg-white hover:bg-pink-50 transition-colors text-xs font-semibold shadow-sm shrink-0"
                             >
-                              Ver tienda <ExternalLink className="w-3 h-3" />
+                              <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           )}
 
@@ -571,7 +565,7 @@ export default function App() {
                           ) : (
                             <button
                               onClick={() => abrirModalRegalo(producto)}
-                              className="flex-1 flex items-center justify-center gap-1.5 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-sm transition-all hover:shadow hover:-translate-y-0.5"
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
                             >
                               <Gift className="w-4 h-4" /> Elegir para regalar
                             </button>
@@ -579,11 +573,11 @@ export default function App() {
                         </div>
 
                         {producto.regalos.length > 0 && (
-                          <div className="mt-3.5 pt-3.5 border-t border-amber-100/50">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900/60 block mb-1">Un regalo de parte de:</span>
+                          <div className="mt-4 pt-3.5 border-t border-amber-100/50">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900/60 block mb-1.5">Un regalo de parte de:</span>
                             <div className="flex flex-wrap gap-1.5">
                               {producto.regalos.map((r, idx) => (
-                                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-100 rounded-full text-[11px] font-medium text-amber-950">
+                                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-100 rounded-full text-[11px] font-medium text-amber-950 shadow-sm">
                                   ❤️ {r.donante} <span className="opacity-60">({r.cantidad})</span>
                                 </span>
                               ))}
