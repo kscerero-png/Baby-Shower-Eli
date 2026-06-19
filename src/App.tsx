@@ -57,6 +57,7 @@ export default function App() {
     enlace: '',
     cantidadNecesitada: 1,
     imagenTipo: 'ropa',
+    imagenUrl: '',
     prioridad: 'Media'
   });
 
@@ -236,6 +237,7 @@ export default function App() {
       enlace: '',
       cantidadNecesitada: 1,
       imagenTipo: 'ropa',
+      imagenUrl: '',
       prioridad: 'Media'
     });
 
@@ -489,7 +491,15 @@ export default function App() {
 
                       <div className="p-6">
                         <div className="flex items-start gap-4 mb-4">
-                          <IconoCategoria tipo={producto.imagenTipo} />
+                          {producto.imagenUrl ? (
+                            <img
+                              src={producto.imagenUrl}
+                              alt={producto.titulo}
+                              className="w-16 h-16 rounded-2xl object-cover border border-pink-100 shrink-0 bg-white"
+                            />
+                          ) : (
+                            <IconoCategoria tipo={producto.imagenTipo} />
+                          )}
                           <div>
                             <span className="text-[11px] font-bold text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded-md uppercase tracking-wider">
                               {producto.categoria}
@@ -802,18 +812,14 @@ export default function App() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-amber-900 mb-1">Icono Representativo</label>
-                        <select
-                          value={nuevoProducto.imagenTipo}
-                          onChange={(e) => setNuevoProducto({...nuevoProducto, imagenTipo: e.target.value})}
+                        <label className="block text-xs font-semibold text-amber-900 mb-1">URL de Imagen del Producto (opcional)</label>
+                        <input 
+                          type="url" 
+                          placeholder="https://m.media-amazon.com/images/I/..."
+                          value={nuevoProducto.imagenUrl}
+                          onChange={(e) => setNuevoProducto({...nuevoProducto, imagenUrl: e.target.value})}
                           className="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-sm"
-                        >
-                          <option value="ropa">Ropa / Zapatos</option>
-                          <option value="decoracion">Luz / Decoración / Cunas</option>
-                          <option value="lactancia">Mamaderas / Biberones / Alimentación</option>
-                          <option value="juguetes">Gimnasios / Sonajeros / Peluches</option>
-                          <option value="higiene">Toallitas / Pañales / Bañeras</option>
-                        </select>
+                        />
                       </div>
 
                       <div>

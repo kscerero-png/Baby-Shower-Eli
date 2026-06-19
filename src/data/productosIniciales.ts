@@ -7,6 +7,7 @@ export interface Producto {
   cantidadNecesitada: number
   cantidadReservada: number
   imagenTipo: string
+  imagenUrl?: string
   prioridad: string
   regalos: {
     donante: string

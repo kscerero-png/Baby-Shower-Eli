@@ -12,7 +12,7 @@ const NOMBRE_HOJA_REGALOS = 'Regalos';
 
 const CAMPOS_PRODUCTOS = [
   'id', 'titulo', 'categoria', 'descripcion', 'enlace',
-  'cantidadNecesitada', 'cantidadReservada', 'imagenTipo', 'prioridad'
+  'cantidadNecesitada', 'cantidadReservada', 'imagenTipo', 'imagenUrl', 'prioridad'
 ];
 
 const CAMPOS_REGALOS = [
