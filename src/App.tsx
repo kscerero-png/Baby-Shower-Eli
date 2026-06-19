@@ -100,7 +100,12 @@ export default function App() {
       const data = await response.json();
       if (data && data.status === 'success' && data.data) {
         if (actualizarLocalmente) {
-          setProductos(data.data);
+          // Combinar productos con sus regalos (vienen separados por tabla)
+          const productosConRegalos = (data.data || []).map(p => ({
+            ...p,
+            regalos: (data.regalos || []).filter(r => r.productoId === p.id)
+          }));
+          setProductos(productosConRegalos);
           if (data._meta?.googleSheetsUrl && data._meta.googleSheetsUrl !== googleSheetsUrl) {
             setGoogleSheetsUrl(data._meta.googleSheetsUrl);
           }
@@ -127,6 +132,12 @@ export default function App() {
     setIsSyncing(true);
     
     try {
+      // Separar productos (sin regalos) y regalos para enviar como tablas
+      const productosLimpios = productosActualizados.map(({ regalos, ...rest }) => rest);
+      const todosRegalos = productosActualizados.flatMap(p =>
+        (p.regalos || []).map(r => ({ ...r, productoId: p.id }))
+      );
+
       const response = await fetch(googleSheetsUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -135,7 +146,8 @@ export default function App() {
         },
         body: JSON.stringify({
           action: 'write',
-          data: productosActualizados,
+          data: productosLimpios,
+          regalos: todosRegalos,
           _meta: { googleSheetsUrl }
         })
       });
