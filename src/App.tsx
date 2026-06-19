@@ -27,8 +27,10 @@ export default function App() {
     return guardados ? JSON.parse(guardados) : PRODUCTOS_INICIALES;
   });
   
+  const GOOGLE_SHEETS_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycby4nnPaLyh86rZUZgTvi-ymbGNcw2k_DOkoUX8raUKRQB1DmsgO5ao_-giu94mnffTzog/exec';
+
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState(() => {
-    return localStorage.getItem('wishlist_google_sheets_url') || '';
+    return localStorage.getItem('wishlist_google_sheets_url') || GOOGLE_SHEETS_URL_DEFAULT;
   });
 
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
