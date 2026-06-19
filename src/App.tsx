@@ -70,13 +70,20 @@ export default function App() {
     localStorage.setItem('wishlist_google_sheets_url', googleSheetsUrl);
   }, [googleSheetsUrl]);
 
+  // Auto-sincronizar al cargar si hay URL configurada
+  useEffect(() => {
+    if (googleSheetsUrl) {
+      sincronizarConGoogleSheets(true, true);
+    }
+  }, []);
+
   const mostrarAlerta = (mensaje, tipo = 'success') => {
     setAlerta({ mensaje, tipo });
     setTimeout(() => setAlerta(null), 4000);
   };
 
   // --- SINCRONIZACIÓN CON GOOGLE SHEETS ---
-  const sincronizarConGoogleSheets = async (actualizarLocalmente = false) => {
+  const sincronizarConGoogleSheets = async (actualizarLocalmente = false, silencioso = false) => {
     if (!googleSheetsUrl) return;
     setIsSyncing(true);
     setSyncError(null);
@@ -92,7 +99,12 @@ export default function App() {
       if (data && data.status === 'success' && data.data) {
         if (actualizarLocalmente) {
           setProductos(data.data);
-          mostrarAlerta("¡Datos sincronizados exitosamente! 🍯");
+          if (data._meta?.googleSheetsUrl && data._meta.googleSheetsUrl !== googleSheetsUrl) {
+            setGoogleSheetsUrl(data._meta.googleSheetsUrl);
+          }
+          if (!silencioso) {
+            mostrarAlerta("¡Datos sincronizados exitosamente! 🍯");
+          }
         }
         setSyncSuccess(true);
       } else {
@@ -100,7 +112,9 @@ export default function App() {
       }
     } catch (err) {
       console.error(err);
-      setSyncError("Error de conexión. Verifica que el URL o endpoint sea correcto y que tenga los permisos de lectura habilitados.");
+      if (!silencioso) {
+        setSyncError("Error de conexión. Verifica que el URL o endpoint sea correcto y que tenga los permisos de lectura habilitados.");
+      }
     } finally {
       setIsSyncing(false);
     }
@@ -117,7 +131,11 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action: 'write', data: productosActualizados })
+        body: JSON.stringify({
+          action: 'write',
+          data: productosActualizados,
+          _meta: { googleSheetsUrl }
+        })
       });
       
       mostrarAlerta("Tu regalo ha sido registrado y enviado a la nube. ¡Muchas gracias! 💕");
