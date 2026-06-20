@@ -9,6 +9,7 @@
 // --- CONFIGURACIÓN ---
 const NOMBRE_HOJA_PRODUCTOS = 'Productos';
 const NOMBRE_HOJA_REGALOS = 'Regalos';
+const NOMBRE_HOJA_TIENDAS = 'Tiendas';
 
 const CAMPOS_PRODUCTOS = [
   'id', 'titulo', 'categoria', 'descripcion', 'enlace',
@@ -17,6 +18,10 @@ const CAMPOS_PRODUCTOS = [
 
 const CAMPOS_REGALOS = [
   'productoId', 'donante', 'fancy', 'cantidad', 'mensaje', 'fecha'
+];
+
+const CAMPOS_TIENDAS = [
+  'id', 'nombre', 'descripcion', 'enlace', 'imagenUrl'
 ];
 
 // --- ENTRY POINTS ---
@@ -29,6 +34,7 @@ function doGet(e) {
       status: 'success',
       data: leerProductos(),
       regalos: leerRegalos(),
+      tiendas: leerTiendas(),
       _meta: {
         googleSheetsUrl: ScriptApp.getService().getUrl()
       }
@@ -46,6 +52,7 @@ function doPost(e) {
     if (action === 'write') {
       escribirProductos(data || []);
       escribirRegalos(regalos || []);
+      if (body.tiendas) escribirTiendas(body.tiendas);
       return responderJson({ status: 'success', message: 'Datos guardados correctamente' });
     }
 
@@ -133,6 +140,44 @@ function escribirRegalos(regalos) {
 
   const datos = encabezados.concat(filas);
   const rango = sheet.getRange(1, 1, datos.length, CAMPOS_REGALOS.length);
+  rango.setValues(datos);
+}
+
+function leerTiendas() {
+  const sheet = obtenerHoja(NOMBRE_HOJA_TIENDAS, CAMPOS_TIENDAS);
+  const datos = sheet.getDataRange().getValues();
+  if (datos.length < 2) return [];
+
+  const encabezados = datos[0];
+  const filas = [];
+
+  for (let i = 1; i < datos.length; i++) {
+    const fila = {};
+    let vacia = true;
+    for (let j = 0; j < encabezados.length; j++) {
+      const valor = datos[i][j];
+      fila[encabezados[j]] = valor;
+      if (valor !== '' && valor !== undefined && valor !== null) {
+        vacia = false;
+      }
+    }
+    if (!vacia) filas.push(fila);
+  }
+
+  return filas;
+}
+
+function escribirTiendas(tiendas) {
+  const sheet = obtenerHoja(NOMBRE_HOJA_TIENDAS, CAMPOS_TIENDAS);
+  sheet.clearContents();
+
+  const encabezados = [CAMPOS_TIENDAS];
+  const filas = tiendas.map(t => {
+    return CAMPOS_TIENDAS.map(campo => t[campo] !== undefined ? t[campo] : '');
+  });
+
+  const datos = encabezados.concat(filas);
+  const rango = sheet.getRange(1, 1, datos.length, CAMPOS_TIENDAS.length);
   rango.setValues(datos);
 }
 

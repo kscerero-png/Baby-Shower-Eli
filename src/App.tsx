@@ -14,9 +14,13 @@ import {
   ChevronRight,
   Info,
   RefreshCw,
-  Baby
+  Baby,
+  Store,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import PRODUCTOS_INICIALES from './data/productosIniciales';
+import TIENDAS_INICIALES from './data/tiendasIniciales';
 import { IlustracionAbeja, IlustracionTarroMiel, IlustracionRama } from './components/Illustrations';
 import IconoCategoria from './components/IconoCategoria';
 
@@ -25,6 +29,11 @@ export default function App() {
   const [productos, setProductos] = useState(() => {
     const guardados = localStorage.getItem('wishlist_baby_shower_items');
     return guardados ? JSON.parse(guardados) : PRODUCTOS_INICIALES;
+  });
+
+  const [tiendas, setTiendas] = useState(() => {
+    const guardados = localStorage.getItem('wishlist_tiendas');
+    return guardados ? JSON.parse(guardados) : TIENDAS_INICIALES;
   });
   
   const GOOGLE_SHEETS_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycby4nnPaLyh86rZUZgTvi-ymbGNcw2k_DOkoUX8raUKRQB1DmsgO5ao_-giu94mnffTzog/exec';
@@ -45,7 +54,7 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState(null);
   const [syncSuccess, setSyncSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState('wishlist'); // wishlist, dedicatorias, configuracion
+  const [activeTab, setActiveTab] = useState('wishlist'); // wishlist, tiendas, dedicatorias, configuracion
   const [adminPassword, setAdminPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   
@@ -68,6 +77,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('wishlist_baby_shower_items', JSON.stringify(productos));
   }, [productos]);
+
+  useEffect(() => {
+    localStorage.setItem('wishlist_tiendas', JSON.stringify(tiendas));
+  }, [tiendas]);
 
   useEffect(() => {
     localStorage.setItem('wishlist_google_sheets_url', googleSheetsUrl);
@@ -107,6 +120,7 @@ export default function App() {
             regalos: (data.regalos || []).filter(r => r.productoId === p.id)
           }));
           setProductos(productosConRegalos);
+          if (data.tiendas) setTiendas(data.tiendas);
           if (data._meta?.googleSheetsUrl && data._meta.googleSheetsUrl !== googleSheetsUrl) {
             setGoogleSheetsUrl(data._meta.googleSheetsUrl);
           }
@@ -149,6 +163,7 @@ export default function App() {
           action: 'write',
           data: productosLimpios,
           regalos: todosRegalos,
+          tiendas,
           _meta: { googleSheetsUrl }
         })
       });
@@ -367,6 +382,16 @@ export default function App() {
             <BookOpen className="w-4 h-4" /> Catálogo de Regalos
           </button>
           <button 
+            onClick={() => setActiveTab('tiendas')}
+            className={`flex items-center gap-2 px-6 py-3.5 text-sm md:text-base font-semibold border-b-2 transition-all ${
+              activeTab === 'tiendas' 
+                ? 'border-pink-500 text-pink-600 bg-white/40 rounded-t-xl font-bold' 
+                : 'border-transparent text-amber-900/60 hover:text-amber-950 hover:bg-white/10'
+            }`}
+          >
+            <Store className="w-4 h-4" /> Tiendas Sugeridas
+          </button>
+          <button 
             onClick={() => setActiveTab('dedicatorias')}
             className={`flex items-center gap-2 px-6 py-3.5 text-sm md:text-base font-semibold border-b-2 transition-all ${
               activeTab === 'dedicatorias' 
@@ -568,6 +593,58 @@ export default function App() {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ================= TIENDAS SUGERIDAS ================= */}
+        {activeTab === 'tiendas' && (
+          <div>
+            <div className="text-center mb-8">
+              <h2 className="font-serif text-3xl font-bold text-amber-900">Tiendas Sugeridas</h2>
+              <p className="text-amber-950/70 mt-2">Lugares donde puedes encontrar los regalos de la lista.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tiendas.map((tienda) => (
+                <div key={tienda.id} className="bg-[#FFFDF9] border-2 border-pink-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col">
+                  <div className="relative w-full h-36 bg-white flex items-center justify-center p-6 border-b border-pink-100">
+                    {tienda.imagenUrl ? (
+                      <img
+                        src={tienda.imagenUrl}
+                        alt={tienda.nombre}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <Store className="w-16 h-16 text-pink-300" />
+                    )}
+                  </div>
+                  <div className="p-5 flex flex-col flex-1">
+                    <h3 className="font-serif text-lg font-bold text-amber-950 mb-2">{tienda.nombre}</h3>
+                    <p className="text-xs md:text-sm text-amber-950/75 leading-relaxed mb-4 flex-1">{tienda.descripcion}</p>
+                    <a
+                      href={tienda.enlace}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-2xl text-xs shadow-sm transition-all"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Visitar Tienda
+                    </a>
+                    {isAdmin && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`¿Eliminar "${tienda.nombre}"?`)) {
+                            setTiendas(tiendas.filter(t => t.id !== tienda.id));
+                          }
+                        }}
+                        className="mt-3 text-xs text-rose-600 hover:text-rose-800 underline font-medium text-center"
+                      >
+                        Eliminar tienda ❌
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -825,6 +902,52 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {/* Admin: Agregar Tienda */}
+            {isAdmin && (
+              <div className="bg-[#FFFDF9] border border-pink-100 p-6 rounded-3xl shadow-sm">
+                <h4 className="font-serif text-lg font-bold text-amber-950 mb-4 flex items-center gap-2">
+                  <Store className="w-5 h-5 text-pink-500" /> Agregar Tienda Sugerida
+                </h4>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.target;
+                  const data = new FormData(form);
+                  const nueva = {
+                    id: "tda-" + Date.now(),
+                    nombre: data.get('nombre'),
+                    descripcion: data.get('descripcion'),
+                    enlace: data.get('enlace'),
+                    imagenUrl: data.get('imagenUrl'),
+                  };
+                  setTiendas([nueva, ...tiendas]);
+                  form.reset();
+                  mostrarAlerta("Tienda agregada 🏪");
+                }} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-amber-900 mb-1">Nombre *</label>
+                      <input name="nombre" required placeholder="Ej. Amazon" className="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-amber-900 mb-1">URL de la Tienda *</label>
+                      <input name="enlace" type="url" required placeholder="https://amazon.com" className="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-sm" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-amber-900 mb-1">Descripción</label>
+                      <textarea name="descripcion" rows="2" placeholder="Describe la tienda..." className="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-sm" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-amber-900 mb-1">URL del Logo / Imagen (opcional)</label>
+                      <input name="imagenUrl" type="url" placeholder="https://logo.com/logo.png" className="w-full px-3 py-2 rounded-xl bg-white border border-amber-200 text-sm" />
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-2xl text-xs shadow-sm transition-all">
+                    <Plus className="w-3.5 h-3.5 inline mr-1" /> Agregar Tienda
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         )}
 
