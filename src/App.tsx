@@ -142,7 +142,7 @@ export default function App() {
     }
   };
 
-  const enviarRegistroAGoogleSheets = async (productosActualizados) => {
+  const enviarRegistroAGoogleSheets = async (productosActualizados, tiendasOverride) => {
     if (!googleSheetsUrl) return;
     setIsSyncing(true);
     
@@ -163,7 +163,7 @@ export default function App() {
           action: 'write',
           data: productosLimpios,
           regalos: todosRegalos,
-          tiendas,
+          tiendas: tiendasOverride || tiendas,
           _meta: { googleSheetsUrl }
         })
       });
@@ -633,7 +633,9 @@ export default function App() {
                       <button
                         onClick={() => {
                           if (confirm(`¿Eliminar "${tienda.nombre}"?`)) {
-                            setTiendas(tiendas.filter(t => t.id !== tienda.id));
+                            const nuevasTiendas = tiendas.filter(t => t.id !== tienda.id);
+                            setTiendas(nuevasTiendas);
+                            if (googleSheetsUrl) enviarRegistroAGoogleSheets(productos, nuevasTiendas);
                           }
                         }}
                         className="mt-3 text-xs text-rose-600 hover:text-rose-800 underline font-medium text-center"
@@ -920,9 +922,11 @@ export default function App() {
                     enlace: data.get('enlace'),
                     imagenUrl: data.get('imagenUrl'),
                   };
-                  setTiendas([nueva, ...tiendas]);
+                  const nuevasTiendas = [nueva, ...tiendas];
+                  setTiendas(nuevasTiendas);
                   form.reset();
                   mostrarAlerta("Tienda agregada 🏪");
+                  if (googleSheetsUrl) enviarRegistroAGoogleSheets(productos, nuevasTiendas);
                 }} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
