@@ -350,27 +350,6 @@ export default function App() {
             Si deseas hacernos un regalo, puedes ver nuestra lista sugerida abajo. Selecciona el artículo que prefieras, la cantidad, y márcalo como reservado para evitar repetidos. ¡Gracias por ser parte de nuestra historia!
           </p>
 
-          {/* Tarjeta de Progreso */}
-          <div className="mt-8 max-w-md mx-auto bg-white/80 backdrop-blur-sm p-5 rounded-3xl border border-pink-100 shadow-sm relative">
-            <div className="absolute -top-6 -right-6 w-16 h-16 pointer-events-none">
-              <IlustracionTarroMiel />
-            </div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-800">Deseos del Corazón</span>
-              <span className="text-xs font-bold text-pink-600 bg-pink-50 px-2.5 py-1 rounded-full">{porcentajeProgreso}% Completado</span>
-            </div>
-            
-            <div className="relative w-full h-4 bg-amber-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-pink-300 to-pink-50 rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${porcentajeProgreso}%` }}
-              />
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-amber-900/75">
-              <span>🎁 {totalReservados} Regalos Reservados</span>
-              <span>🌿 {totalNecesitados - totalReservados} Disponibles</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -572,18 +551,6 @@ export default function App() {
                           )}
                         </div>
 
-                        {producto.regalos.length > 0 && (
-                          <div className="mt-4 pt-3.5 border-t border-amber-100/50">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900/60 block mb-1.5">Un regalo de parte de:</span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {producto.regalos.map((r, idx) => (
-                                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white border border-amber-100 rounded-full text-[11px] font-medium text-amber-950 shadow-sm">
-                                  ❤️ {r.donante} <span className="opacity-60">({r.cantidad})</span>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                         
                         {isAdmin && (
                           <div className="mt-4 pt-2 border-t border-rose-100 flex justify-end">
@@ -627,10 +594,7 @@ export default function App() {
                     </div>
                     
                     <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-serif text-lg font-bold text-pink-700">{d.donante}</h4>
-                        <p className="text-xs text-amber-900/60">Regaló: <span className="font-semibold text-amber-950">{d.productoTitulo}</span> (Cant: {d.cantidad})</p>
-                      </div>
+                      <h4 className="font-serif text-lg font-bold text-pink-700">{d.donante}</h4>
                       {d.fecha && <span className="text-[10px] bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-medium">{d.fecha}</span>}
                     </div>
 
